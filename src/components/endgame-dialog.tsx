@@ -12,10 +12,12 @@ export default function EndGameDialog() {
   const handlePlayAgain = () => {
     dispatch({ type: 'RESET_GAME' });
   };
+  
+  const getDisplayedScore = (score: number) => (score > 0 ? score / 2 : 0);
 
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-  const highScore = sortedPlayers.length > 0 ? sortedPlayers[0].score : 0;
-  const winners = sortedPlayers.filter(p => p.score === highScore && highScore > 0);
+  const sortedPlayers = [...players].sort((a, b) => getDisplayedScore(b.score) - getDisplayedScore(a.score));
+  const highScore = sortedPlayers.length > 0 ? getDisplayedScore(sortedPlayers[0].score) : 0;
+  const winners = sortedPlayers.filter(p => getDisplayedScore(p.score) === highScore && highScore > 0);
 
   return (
     <Dialog open={gameState.phase === 'finished'}>
@@ -41,7 +43,7 @@ export default function EndGameDialog() {
                   )}
                   <span className="font-bold text-lg">{player.name}</span>
                 </div>
-                <span className="font-bold text-xl text-primary">{player.score}</span>
+                <span className="font-bold text-xl text-primary">{getDisplayedScore(player.score)}</span>
               </li>
             ))}
           </ul>

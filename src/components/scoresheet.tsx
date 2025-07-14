@@ -37,7 +37,7 @@ export default function ScoreSheet() {
               </span>
               <span className="flex items-center gap-2 font-bold text-xl text-primary">
                 <Trophy className="h-5 w-5" />
-                {player.score}
+                {player.score > 0 ? player.score / 2 : 0}
               </span>
             </li>
           ))}
