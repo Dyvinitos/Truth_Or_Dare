@@ -81,29 +81,25 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'playing') return state;
 
       const isCompletion = action.type === 'COMPLETE_TASK';
-      
-      const newPlayers = [...state.players];
+      const updatedPlayers = [...state.players];
       if (isCompletion) {
-        newPlayers[state.currentPlayerIndex].score += 1;
+        updatedPlayers[state.currentPlayerIndex].score += 1;
       }
-      
-      const nextTurn = state.currentTurn + 1;
-      if (nextTurn > state.totalTurns) {
-        return { ...state, players: newPlayers, phase: 'finished' };
-      }
-      
-      const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-      const nextCard = drawAndAssignNewCard(state);
 
+      if (state.currentTurn >= state.totalTurns) {
+        return { ...state, players: updatedPlayers, phase: 'finished' };
+      }
+
+      const nextCard = drawAndAssignNewCard(state);
       if (!nextCard) {
-        return { ...state, players: newPlayers, phase: 'finished' };
+        return { ...state, players: updatedPlayers, phase: 'finished' };
       }
 
       return {
         ...state,
-        players: newPlayers,
-        currentPlayerIndex: nextPlayerIndex,
-        currentTurn: nextTurn,
+        players: updatedPlayers,
+        currentTurn: state.currentTurn + 1,
+        currentPlayerIndex: (state.currentPlayerIndex + 1) % state.players.length,
         currentCard: nextCard,
       };
     }
