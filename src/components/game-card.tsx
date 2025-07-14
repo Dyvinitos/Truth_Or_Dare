@@ -59,7 +59,7 @@ export default function GameCard() {
         <CardContent className="flex-grow flex flex-col items-center justify-center px-6 py-8">
             <div className={cn("flex items-center gap-3 mb-4 text-2xl font-bold font-headline", isTruth ? "text-primary" : "text-accent")}>
                 {isTruth ? <ShieldQuestion className="h-8 w-8"/> : <HelpCircle className="h-8 w-8"/>}
-                Truth or Dare?
+                {isTruth ? 'Truth' : 'Dare'}
             </div>
             <p className="text-xl md:text-2xl font-body leading-relaxed">{currentCard.text}</p>
         </CardContent>
