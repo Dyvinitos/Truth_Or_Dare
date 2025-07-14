@@ -29,4 +29,5 @@ export type GameAction =
   | { type: 'SKIP_TASK' }
   | { type: 'ADD_ITEM'; payload: { type: 'truth' | 'dare'; text: string } }
   | { type: 'DELETE_ITEM'; payload: { type: 'truth' | 'dare'; index: number } }
-  | { type: 'RESET_GAME' };
+  | { type: 'RESET_GAME' }
+  | { type: 'SET_PROCESSING', payload: boolean };

@@ -19,7 +19,7 @@ export default function GameCard() {
       return () => clearTimeout(timer);
     }
   }, [currentCard?.text]);
-  
+
   if (!currentCard) {
     return (
       <Card className="flex flex-col items-center justify-center min-h-[300px] text-center shadow-xl">
