@@ -25,6 +25,27 @@ const initialState: GameState = {
   currentCard: null,
 };
 
+function drawNewCard(state: GameState): GameState {
+  if (state.truths.length === 0 && state.dares.length === 0) {
+    return { ...state, phase: 'finished' };
+  }
+
+  const type = Math.random() > 0.5 ? 'truth' : 'dare';
+  
+  if (type === 'truth' && state.truths.length > 0) {
+    const randomIndex = Math.floor(Math.random() * state.truths.length);
+    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
+  } else if (state.dares.length > 0) {
+    const randomIndex = Math.floor(Math.random() * state.dares.length);
+    return { ...state, currentCard: { type: 'dare', text: state.dares[randomIndex] } };
+  } else if (state.truths.length > 0) { // Fallback to truth if dare is selected but empty
+    const randomIndex = Math.floor(Math.random() * state.truths.length);
+    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
+  }
+
+  return { ...state, phase: 'finished' }; // No cards left
+}
+
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'START_GAME': {
@@ -41,15 +62,41 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
     case 'COMPLETE_TASK': {
       if (state.phase !== 'playing') return state;
+
       const newPlayers = [...state.players];
       newPlayers[state.currentPlayerIndex].score += 1;
       
-      const nextState = { ...state, players: newPlayers };
-      return advanceTurn(nextState);
+      if (state.currentTurn >= state.totalTurns) {
+        return { ...state, players: newPlayers, phase: 'finished' };
+      }
+      
+      const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+
+      const nextState = {
+        ...state,
+        players: newPlayers,
+        currentPlayerIndex: nextPlayerIndex,
+        currentTurn: state.currentTurn + 1,
+      };
+
+      return drawNewCard(nextState);
     }
     case 'SKIP_TASK': {
       if (state.phase !== 'playing') return state;
-      return advanceTurn(state);
+
+      if (state.currentTurn >= state.totalTurns) {
+        return { ...state, phase: 'finished' };
+      }
+      
+      const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+
+      const nextState = {
+        ...state,
+        currentPlayerIndex: nextPlayerIndex,
+        currentTurn: state.currentTurn + 1,
+      };
+
+      return drawNewCard(nextState);
     }
     case 'ADD_ITEM': {
         if (action.payload.type === 'truth') {
@@ -75,43 +122,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
-}
-
-function drawNewCard(state: GameState): GameState {
-  if (state.truths.length === 0 && state.dares.length === 0) {
-    return { ...state, phase: 'finished' };
-  }
-
-  const type = Math.random() > 0.5 ? 'truth' : 'dare';
-  
-  if (type === 'truth' && state.truths.length > 0) {
-    const randomIndex = Math.floor(Math.random() * state.truths.length);
-    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
-  } else if (state.dares.length > 0) {
-    const randomIndex = Math.floor(Math.random() * state.dares.length);
-    return { ...state, currentCard: { type: 'dare', text: state.dares[randomIndex] } };
-  } else if (state.truths.length > 0) { // Fallback to truth if dare is selected but empty
-    const randomIndex = Math.floor(Math.random() * state.truths.length);
-    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
-  }
-
-  return { ...state, phase: 'finished' }; // No cards left
-}
-
-function advanceTurn(state: GameState): GameState {
-  if (state.currentTurn >= state.totalTurns) {
-    return { ...state, phase: 'finished' };
-  }
-  
-  const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-  const nextState = {
-    ...state,
-    currentPlayerIndex: nextPlayerIndex,
-    currentTurn: state.currentTurn + 1,
-  };
-
-  return drawNewCard(nextState);
 }
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
