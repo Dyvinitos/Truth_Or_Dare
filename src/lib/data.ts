@@ -9,6 +9,7 @@ export const initialTruths: string[] = [
   "What's something you're glad your family doesn't know about you?",
   "What's the worst thing you've ever done?",
   "Have you ever pretended to be sick to get out of something?",
+  "Test",
 ];
 
 export const initialDares: string[] = [
@@ -22,4 +23,5 @@ export const initialDares: string[] = [
   "Wear your clothes backward for the rest of the game.",
   "Tell a joke. If no one laughs, you lose a point.",
   "Dance to a song chosen by the group.",
+  "test",
 ];

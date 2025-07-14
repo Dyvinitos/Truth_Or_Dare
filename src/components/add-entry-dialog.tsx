@@ -37,10 +37,11 @@ export default function AddEntryDialog() {
         dispatch({ type: 'ADD_ITEM', payload: { type, text } });
         toast({
           title: "Success!",
-          description: `Your ${type} has been permanently added to the game.`,
+          description: `Your ${type} has been added to the game for this session.`,
         })
         setText('');
-        setOpen(false);
+        // We keep the dialog open by not changing the `open` state to false.
+        // setOpen(false); 
       } else {
         toast({
           variant: "destructive",
@@ -63,7 +64,7 @@ export default function AddEntryDialog() {
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">Add a New Truth or Dare</DialogTitle>
           <DialogDescription>
-            Contribute your own fun and exciting challenges to the game. This will be added permanently.
+            Contribute your own fun and exciting challenges to the game for this session.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,7 +94,7 @@ export default function AddEntryDialog() {
           </div>
           <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending ? "Adding..." : "Add Permanently"}
+            {isPending ? "Adding..." : "Add to Game"}
           </Button>
         </form>
       </DialogContent>
