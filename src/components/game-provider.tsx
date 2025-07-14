@@ -103,8 +103,6 @@ function advanceTurn(state: GameState): GameState {
     return { ...state, phase: 'finished' };
   }
   
-  const isNewRound = state.currentPlayerIndex === state.players.length - 1;
-  const nextTurn = isNewRound ? state.currentTurn + 1 : state.currentTurn;
   const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
 
   const nextState = {

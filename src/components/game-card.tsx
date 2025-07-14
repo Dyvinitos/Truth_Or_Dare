@@ -13,10 +13,12 @@ export default function GameCard() {
   const [isFlipping, setIsFlipping] = useState(false);
 
   useEffect(() => {
-    setIsFlipping(true);
-    const timer = setTimeout(() => setIsFlipping(false), 300); // Corresponds to animation duration
-    return () => clearTimeout(timer);
-  }, [currentCard]);
+    if (currentCard) {
+      setIsFlipping(true);
+      const timer = setTimeout(() => setIsFlipping(false), 300); // Corresponds to animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [currentCard?.text]);
   
   if (!currentCard) {
     return (
