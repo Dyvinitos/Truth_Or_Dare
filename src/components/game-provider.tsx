@@ -101,12 +101,11 @@ function advanceTurn(state: GameState): GameState {
   }
 
   const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-  const nextTurn = state.currentTurn + 1;
-
+  
   const nextState = {
     ...state,
     currentPlayerIndex: nextPlayerIndex,
-    currentTurn: nextTurn,
+    currentTurn: state.currentTurn + 1,
   };
 
   return drawNewCard(nextState);
