@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import { useGame } from './game-provider';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -8,8 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from "@/hooks/use-toast"
-import { Plus, Loader2 } from 'lucide-react';
-import { addEntry } from '@/app/actions';
+import { Plus } from 'lucide-react';
 
 export default function AddEntryDialog() {
   const { dispatch } = useGame();
@@ -17,7 +16,6 @@ export default function AddEntryDialog() {
   const [text, setText] = useState('');
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,26 +28,14 @@ export default function AddEntryDialog() {
       return;
     }
     
-    startTransition(async () => {
-      const result = await addEntry(type, text);
-
-      if (result.success) {
-        dispatch({ type: 'ADD_ITEM', payload: { type, text } });
-        toast({
-          title: "Success!",
-          description: `Your ${type} has been added to the game for this session.`,
-        })
-        setText('');
-        // We keep the dialog open by not changing the `open` state to false.
-        // setOpen(false); 
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Save Error",
-          description: result.error || "Could not save the new entry.",
-        })
-      }
-    });
+    dispatch({ type: 'ADD_ITEM', payload: { type, text } });
+    toast({
+      title: "Success!",
+      description: `Your ${type} has been added to the game.`,
+    })
+    setText('');
+    // We can keep the dialog open to add more.
+    // setOpen(false); 
   };
 
   return (
@@ -64,7 +50,7 @@ export default function AddEntryDialog() {
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">Add a New Truth or Dare</DialogTitle>
           <DialogDescription>
-            Contribute your own fun and exciting challenges to the game for this session.
+            Contribute your own fun and exciting challenges to the game. These will be saved in your browser.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -89,12 +75,10 @@ export default function AddEntryDialog() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               className="mt-2 min-h-[100px]"
-              disabled={isPending}
             />
           </div>
-          <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending ? "Adding..." : "Add to Game"}
+          <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
+            Add to Game
           </Button>
         </form>
       </DialogContent>
