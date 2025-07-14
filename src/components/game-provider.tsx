@@ -40,12 +40,15 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return drawNewCard(newState);
     }
     case 'COMPLETE_TASK': {
+      if (state.phase !== 'playing') return state;
       const newPlayers = [...state.players];
       newPlayers[state.currentPlayerIndex].score += 1;
+      
       const nextState = { ...state, players: newPlayers };
       return advanceTurn(nextState);
     }
     case 'SKIP_TASK': {
+      if (state.phase !== 'playing') return state;
       return advanceTurn(state);
     }
     case 'ADD_ITEM': {
@@ -99,9 +102,11 @@ function advanceTurn(state: GameState): GameState {
   if (state.currentTurn >= state.totalTurns) {
     return { ...state, phase: 'finished' };
   }
-
-  const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
   
+  const isNewRound = state.currentPlayerIndex === state.players.length - 1;
+  const nextTurn = isNewRound ? state.currentTurn + 1 : state.currentTurn;
+  const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+
   const nextState = {
     ...state,
     currentPlayerIndex: nextPlayerIndex,
