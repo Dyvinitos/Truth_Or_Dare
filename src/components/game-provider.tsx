@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, Dispatch } from 'react';
-import type { GameState, GameAction, Player } from '@/lib/types';
+import type { GameState, GameAction, Player, GameCardContent } from '@/lib/types';
 import { initialTruths, initialDares } from '@/lib/data';
 
 const GameContext = createContext<{
@@ -25,28 +25,39 @@ const initialState: GameState = {
   currentCard: null,
 };
 
-function drawNewCard(state: GameState): GameState {
-  if (state.truths.length === 0 && state.dares.length === 0) {
-    return { ...state, phase: 'finished' };
-  }
-
-  const type = Math.random() > 0.5 ? 'truth' : 'dare';
-  
-  if (type === 'truth' && state.truths.length > 0) {
-    const randomIndex = Math.floor(Math.random() * state.truths.length);
-    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
-  } else if (state.dares.length > 0) {
-    const randomIndex = Math.floor(Math.random() * state.dares.length);
-    return { ...state, currentCard: { type: 'dare', text: state.dares[randomIndex] } };
-  } else if (state.truths.length > 0) { // Fallback to truth if dare is selected but empty
-    const randomIndex = Math.floor(Math.random() * state.truths.length);
-    return { ...state, currentCard: { type: 'truth', text: state.truths[randomIndex] } };
-  }
-
-  return { ...state, phase: 'finished' }; // No cards left
-}
 
 function gameReducer(state: GameState, action: GameAction): GameState {
+  
+  const drawAndAssignNewCard = (currentState: GameState): GameCardContent | null => {
+    const { truths, dares } = currentState;
+    if (truths.length === 0 && dares.length === 0) {
+      return null;
+    }
+
+    const canDrawTruth = truths.length > 0;
+    const canDrawDare = dares.length > 0;
+    let cardType: 'truth' | 'dare' | null = null;
+
+    if (canDrawTruth && canDrawDare) {
+      cardType = Math.random() > 0.5 ? 'truth' : 'dare';
+    } else if (canDrawTruth) {
+      cardType = 'truth';
+    } else if (canDrawDare) {
+      cardType = 'dare';
+    }
+
+    if (cardType === 'truth') {
+      const randomIndex = Math.floor(Math.random() * truths.length);
+      return { type: 'truth', text: truths[randomIndex] };
+    }
+    if (cardType === 'dare') {
+      const randomIndex = Math.floor(Math.random() * dares.length);
+      return { type: 'dare', text: dares[randomIndex] };
+    }
+    
+    return null;
+  }
+
   switch (action.type) {
     case 'START_GAME': {
       const { players, totalTurns } = action.payload;
@@ -58,46 +69,45 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentTurn: 1,
         currentPlayerIndex: 0,
       };
-      return drawNewCard(newState);
+      const firstCard = drawAndAssignNewCard(newState);
+      if (!firstCard) {
+        return { ...newState, phase: 'finished' };
+      }
+      return { ...newState, currentCard: firstCard };
     }
-    case 'COMPLETE_TASK': {
+    
+    case 'COMPLETE_TASK':
+    case 'SKIP_TASK': {
       if (state.phase !== 'playing') return state;
 
-      const newPlayers = [...state.players];
-      newPlayers[state.currentPlayerIndex].score += 1;
+      const isCompletion = action.type === 'COMPLETE_TASK';
       
-      if (state.currentTurn >= state.totalTurns) {
+      const newPlayers = [...state.players];
+      if (isCompletion) {
+        newPlayers[state.currentPlayerIndex].score += 1;
+      }
+      
+      const nextTurn = state.currentTurn + 1;
+      if (nextTurn > state.totalTurns) {
         return { ...state, players: newPlayers, phase: 'finished' };
       }
       
       const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      const nextCard = drawAndAssignNewCard(state);
 
-      const nextState = {
+      if (!nextCard) {
+        return { ...state, players: newPlayers, phase: 'finished' };
+      }
+
+      return {
         ...state,
         players: newPlayers,
         currentPlayerIndex: nextPlayerIndex,
-        currentTurn: state.currentTurn + 1,
+        currentTurn: nextTurn,
+        currentCard: nextCard,
       };
-
-      return drawNewCard(nextState);
     }
-    case 'SKIP_TASK': {
-      if (state.phase !== 'playing') return state;
-
-      if (state.currentTurn >= state.totalTurns) {
-        return { ...state, phase: 'finished' };
-      }
-      
-      const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
-
-      const nextState = {
-        ...state,
-        currentPlayerIndex: nextPlayerIndex,
-        currentTurn: state.currentTurn + 1,
-      };
-
-      return drawNewCard(nextState);
-    }
+    
     case 'ADD_ITEM': {
         if (action.payload.type === 'truth') {
             return { ...state, truths: [...state.truths, action.payload.text] };
