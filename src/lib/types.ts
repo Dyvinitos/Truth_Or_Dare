@@ -20,6 +20,7 @@ export type GameState = {
   truths: string[];
   dares: string[];
   currentCard: GameCardContent | null;
+  isProcessing: boolean;
 };
 
 export type GameAction =

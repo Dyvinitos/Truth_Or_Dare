@@ -23,8 +23,8 @@ const initialState: GameState = {
   truths: [...initialTruths],
   dares: [...initialDares],
   currentCard: null,
+  isProcessing: false,
 };
-
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   
@@ -68,6 +68,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         totalTurns,
         currentTurn: 1,
         currentPlayerIndex: 0,
+        isProcessing: false,
       };
       const firstCard = drawAndAssignNewCard(newState);
       if (!firstCard) {
@@ -78,7 +79,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     
     case 'COMPLETE_TASK':
     case 'SKIP_TASK': {
-      if (state.phase !== 'playing') return state;
+      if (state.phase !== 'playing' || state.isProcessing) return state;
 
       const isCompletion = action.type === 'COMPLETE_TASK';
       const updatedPlayers = [...state.players];
@@ -86,13 +87,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         updatedPlayers[state.currentPlayerIndex].score += 1;
       }
 
-      if (state.currentTurn >= state.totalTurns) {
-        return { ...state, players: updatedPlayers, phase: 'finished' };
+      const isGameOver = state.currentTurn >= state.totalTurns;
+      if (isGameOver) {
+        return { ...state, players: updatedPlayers, phase: 'finished', isProcessing: false };
       }
 
       const nextCard = drawAndAssignNewCard(state);
       if (!nextCard) {
-        return { ...state, players: updatedPlayers, phase: 'finished' };
+        return { ...state, players: updatedPlayers, phase: 'finished', isProcessing: false };
       }
 
       return {
@@ -101,6 +103,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentTurn: state.currentTurn + 1,
         currentPlayerIndex: (state.currentPlayerIndex + 1) % state.players.length,
         currentCard: nextCard,
+        isProcessing: false,
       };
     }
     
@@ -130,15 +133,47 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
+const robustDispatch = (dispatch: Dispatch<GameAction>, state: GameState) => (action: GameAction) => {
+  if (action.type === 'COMPLETE_TASK' || action.type === 'SKIP_TASK') {
+    if (state.isProcessing) return;
+    dispatch({ ...action, type: 'PROCESSING_START' } as any); // A bit of a hack to set processing
+  }
+  dispatch(action);
+}
+
+function lockedGameReducer(state: GameState, action: GameAction & { type: 'PROCESSING_START' | 'PROCESSING_END' }): GameState {
+  if (action.type === ('PROCESSING_START' as any)) {
+    return {...state, isProcessing: true};
+  }
+  return gameReducer(state, action);
+}
+
+
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [gameState, dispatch] = useReducer(gameReducer, initialState);
+  const [gameState, dispatch] = useReducer(lockedGameReducer, initialState);
+
+  const enhancedDispatch = (action: GameAction) => {
+    if ((action.type === 'COMPLETE_TASK' || action.type === 'SKIP_TASK') && gameState.isProcessing) {
+        return;
+    }
+
+    if (action.type === 'COMPLETE_TASK' || action.type === 'SKIP_TASK') {
+        dispatch({type: 'PROCESSING_START'} as any);
+        setTimeout(() => {
+            dispatch(action);
+        }, 350); // Delay to allow UI to update and prevent double triggers
+    } else {
+        dispatch(action);
+    }
+  };
 
   return (
-    <GameContext.Provider value={{ gameState, dispatch }}>
+    <GameContext.Provider value={{ gameState, dispatch: enhancedDispatch }}>
       {children}
     </GameContext.Provider>
   );
 };
+
 
 export const useGame = () => {
   const context = useContext(GameContext);

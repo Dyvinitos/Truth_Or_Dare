@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from "./game-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, HelpCircle, ShieldQuestion } from "lucide-react";
+import { CheckCircle, XCircle, HelpCircle, ShieldQuestion, Loader2 } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 export default function GameCard() {
   const { gameState, dispatch } = useGame();
-  const { players, currentPlayerIndex, currentCard, currentTurn, totalTurns } = gameState;
+  const { players, currentPlayerIndex, currentCard, currentTurn, totalTurns, isProcessing } = gameState;
   const [isFlipping, setIsFlipping] = useState(false);
 
   useEffect(() => {
@@ -64,11 +64,13 @@ export default function GameCard() {
             <p className="text-xl md:text-2xl font-body leading-relaxed">{currentCard.text}</p>
         </CardContent>
         <CardFooter className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Button onClick={() => handleAction('COMPLETE_TASK')} size="lg" className="text-lg py-6 bg-green-500 hover:bg-green-600 text-white">
-            <CheckCircle className="mr-2" /> Completed
+          <Button onClick={() => handleAction('COMPLETE_TASK')} size="lg" className="text-lg py-6 bg-green-500 hover:bg-green-600 text-white" disabled={isProcessing}>
+            {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle className="mr-2" />}
+            {isProcessing ? 'Processing...' : 'Completed'}
           </Button>
-          <Button onClick={() => handleAction('SKIP_TASK')} size="lg" variant="destructive" className="text-lg py-6">
-            <XCircle className="mr-2" /> Skip
+          <Button onClick={() => handleAction('SKIP_TASK')} size="lg" variant="destructive" className="text-lg py-6" disabled={isProcessing}>
+             {isProcessing ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <XCircle className="mr-2" />}
+             {isProcessing ? 'Processing...' : 'Skip'}
           </Button>
         </CardFooter>
       </Card>
