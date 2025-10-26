@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "seed": "node -r dotenv/config prisma/seed.js"
+    "seed": "node -r dotenv/config prisma/seed.js",
 	"postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
