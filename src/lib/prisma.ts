@@ -1,4 +1,3 @@
-import { PrismaClient } from "@/app/generated/prisma-client";
 // src/lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
 
