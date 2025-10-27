@@ -10,7 +10,7 @@ import ManageListDialog from "./manage-list-dialog";
 function Header() {
   return (
     <header className="w-full flex justify-between items-center mb-4 md:mb-6">
-      <h1 className="font-headline text-3xl md:text-4xl text-primary">Daredevil Truths</h1>
+      <h1 className="font-headline text-3xl md:text-4xl text-primary">Bouffe Couille TOD</h1>
       <div className="flex items-center gap-2">
         <AddEntryDialog />
         <ManageListDialog />
