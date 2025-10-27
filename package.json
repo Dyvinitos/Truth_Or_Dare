@@ -10,7 +10,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed": "node -r dotenv/config prisma/seed.js",
-	"postinstall": "prisma generate && prisma migrate deploy"
+	"postinstall": "prisma generate && prisma db push --accept-data-loss"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.13.0",
