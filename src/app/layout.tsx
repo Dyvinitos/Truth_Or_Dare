@@ -4,8 +4,8 @@ import { GameProvider } from '@/components/game-provider';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Daredevil Truths',
-  description: 'A game of truth or dare.',
+  title: 'Bouffe Couille TOD',
+  description: 'A game of truth or dare made by Tim :)',
 };
 
 export default function RootLayout({
