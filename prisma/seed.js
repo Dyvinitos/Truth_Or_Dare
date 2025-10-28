@@ -9,9 +9,6 @@ async function main() {
 
   // Truths
   const truthsData = [
-    { content: "What's your biggest fear?" },
-    { content: "Have you ever lied to your best friend?" },
-    { content: "What's your most embarrassing moment?" },
   ];
 
   for (const truth of truthsData) {
@@ -20,9 +17,6 @@ async function main() {
 
   // Dares
   const daresData = [
-    { content: "Do 10 push-ups" },
-    { content: "Sing a song loudly" },
-    { content: "Dance for 30 seconds" },
     { content: "TEST SEED"},
   ];
 
