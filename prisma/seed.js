@@ -23,6 +23,7 @@ async function main() {
     { content: "Do 10 push-ups" },
     { content: "Sing a song loudly" },
     { content: "Dance for 30 seconds" },
+    { content: "TEST SEED"},
   ];
 
   for (const dare of daresData) {
