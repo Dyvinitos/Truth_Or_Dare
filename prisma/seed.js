@@ -9,6 +9,7 @@ async function main() {
 
   // Truths
   const truthsData = [
+    { content: "TEST SEED"},
   ];
 
   for (const truth of truthsData) {
